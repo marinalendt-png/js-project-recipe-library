@@ -13,30 +13,9 @@ function makesButtonInteractive(groupClass) {
 makesButtonInteractive(".btn-kitchen")
 makesButtonInteractive(".btn-sorting")
 
-//When clicking a kitchen-button, a text appears in card-1//
-// const card = document.getElementById("card-1")
-// const filterButtons = document.querySelectorAll(".btn-kitchen")
-
-// filterButtons.forEach(button => {
-//   button.addEventListener("click", () => {
-//     let textToAdd = ""
-
-//     if (button.innerText === "All") {
-//       textToAdd = "You eat everything, maybe liver then?"
-//     } else if (button.innerText === "Asian") {
-//       textToAdd = "Sushi, pad Thai, noodles or dumplings?"
-//     } else if (button.innerText === "Italian") {
-//       textToAdd = "Pasta or pizza?"
-//     } else if (button.innerText === "Mexican") {
-//       textToAdd = "I love TACOS"
-//     }
-//     card.innerHTML += "<p>" + textToAdd + "</p>"
-//   })
-// })
-
-// CARDS with recipes//
+// CARDS//
 const container = document.getElementById("container")
-
+//Recipes//
 const recipes = [
   {
     image: "images/pizza.jpg",
@@ -44,10 +23,10 @@ const recipes = [
     cuisine: "Italian",
     time: "30 min",
     ingredients: [
-      "yeast",
-      "mozzarella",
-      "prosciutto",
-      "fresh basil"
+      "Yeast",
+      "Mozzarella",
+      "Prosciutto",
+      "Fresh basil"
     ]
   },
   {
@@ -56,10 +35,10 @@ const recipes = [
     cuisine: "Asian",
     time: "20 min",
     ingredients: [
-      "yeast",
-      "mozzarella",
-      "prosciutto",
-      "fresh basil"
+      "Noodles",
+      "Chicken",
+      "Onions",
+      "Soy"
     ]
   },
 
@@ -69,10 +48,10 @@ const recipes = [
     cuisine: "Mexican",
     time: "30 min",
     ingredients: [
-      "yeast",
-      "mozzarella",
-      "prosciutto",
-      "fresh basil"
+      "Tacoshells",
+      "Ground beaf",
+      "Avocado",
+      "Tomatoes"
     ]
   },
   {
@@ -81,17 +60,18 @@ const recipes = [
     cuisine: "Italian",
     time: "45 min",
     ingredients: [
-      "yeast",
-      "mozzarella",
-      "prosciutto",
-      "fresh basil"
+      "Risottorice",
+      "Chickenstock",
+      "White wine",
+      "Saffron"
     ]
   }
 ]
 
 const showRecipe = (recipeArray) => {
-  container.innerHTML = ""
+  container.innerHTML = "" //Resetting the container before filling it//
 
+  // The content of the CARDS//
   recipeArray.forEach(recipe => {
     container.innerHTML += `
       <div class="card">
@@ -111,4 +91,34 @@ const showRecipe = (recipeArray) => {
   });
 };
 
-showRecipe(recipes)
+showRecipe(recipes)                                        //visa alla recept
+
+const buttons = document.querySelectorAll(".btn-kitchen") //hämtar alla knappar som ska filtreras
+const sortButtons = document.querySelectorAll(".btn-sorting")
+
+buttons.forEach(button => {
+  button.addEventListener("click", () => {                 //vad händer när knappen clickas
+    const chosenCuisine = button.textContent.trim()        //trim gör så att mellanslag mm i text html tas bort. 
+    if (chosenCuisine === "All") {
+      window.currentRecipes = [...recipes]
+    } else {
+      window.currentRecipes = recipes.filter(recipe => recipe.cuisine === chosenCuisine)
+    }
+    showRecipe(window.currentRecipes)
+  })
+})
+
+
+sortButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    const chosenSort = button.textContent.trim()
+    let sortedRecipes = [...window.currentRecipes]              //kopierar den aktuella listan från filter
+
+    sortedRecipes.sort((a, b) => {                              //sorterar baserat på tiden
+      const timeA = parseInt(a.time)                           //plockar ut siffran från 30 min
+      const timeB = parseInt(b.time)
+      return chosenSort === "Ascending" ? timeA - timeB : timeB - timeA
+    })
+    showRecipe(sortedRecipes)
+  })
+})
