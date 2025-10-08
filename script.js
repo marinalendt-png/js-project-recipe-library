@@ -4,6 +4,7 @@ const apiKey = "f7aa1eb0bfab45cdae5e9f2f21292092"
 const container = document.getElementById("container")
 const buttons = document.querySelectorAll(".btn-kitchen")
 const sortButtons = document.querySelectorAll(".btn-sorting")
+const randomButton = document.querySelector(".btn-random")
 
 let selectedCuisine = "All"
 let currentRecipes = []
@@ -45,6 +46,7 @@ const showRecipe = (recipeArray) => {
         <ul>
         ${recipe.extendedIngredients?.map(i => `<li>${i.original}</li>`).join("") || "No ingredients"}
         </ul>
+        <p class=showMore>Show details...</p>
       </div>
     `;
   });
@@ -78,13 +80,27 @@ sortButtons.forEach(button => {
   })
 })
 
+//Randombutton//
+randomButton.addEventListener("click", () => {
+  if (!currentRecipes.length) {
+    container.innerHTML = "<p> No recipes to show for this cuisine right now...</p>"
+    return
+  }
+
+  const randomIndex = Math.floor(Math.random() * currentRecipes.length)
+  const randomRecipe = currentRecipes[randomIndex]
+
+  showRecipe([randomRecipe])
+})
+
 //======= FETCH from API =======//
 
 async function fetchRecipes() {
   container.innerHTML = "<p>Loading recipes...</p>"
 
   try {
-    let url = `https://api.spoonacular.com/recipes/random?number=20&apiKey=${apiKey}`//vi väntar på svar från API:t och hämtar 20 recept
+    let url = `https://api.spoonacular.com/recipes/random?number=30&apiKey=${apiKey}&addRecipeInformation=true&addRecipeInstructions=true
+    `//vi väntar på svar från API:t och hämtar 20 recept
 
     if (selectedCuisine !== "All") {
       url += `&cuisine=${selectedCuisine}` //Use cuisines here instead of tags, to get sorted by cuisines//
@@ -95,9 +111,15 @@ async function fetchRecipes() {
 
     const data = await response.json()
 
-    currentRecipes = selectedCuisine === "All"
-      ? data.recipes
-      : data.recipes.filter(recipe => recipe.cuisines.includes(selectedCuisine))
+    currentRecipes = data.recipes
+      .filter(recipe => recipe.cuisines && recipe.cuisines.length > 0) //Takes away recipes without cuisine
+      .filter(recipe => selectedCuisine === "All" || recipe.cuisines.includes(selectedCuisine)) //Filter on chosen cuisine
+
+    if (currentRecipes.length === 0) {
+      container.innerHTML = `<p No recipes was found for this "${selectedCuisine}"😕</p>`
+    } else {
+      showRecipe(currentRecipes)
+    }
 
     showRecipe(currentRecipes)
 
